@@ -1,0 +1,28 @@
+---
+description: Diretrizes globais para SwiftUI com MVVM-C
+alwaysApply: true
+---
+
+# Regras Globais do Projeto
+
+## Arquitetura obrigatoria
+- Todo fluxo novo deve seguir MVVM-C.
+- `Coordinator` controla navegacao e montagem de modulos.
+- `ViewModel` concentra estado, regras de apresentacao e intents da tela.
+- `View` apenas renderiza UI, faz binding e dispara acoes para o `ViewModel`.
+- Servicos e repositorios devem ser injetados por protocolo para facilitar testes e desacoplamento.
+
+## SwiftUI e design
+- Evitar hardcode de estilos repetidos; preferir Design System (`AppColors`, `Spacing`, `Typography`).
+- Fundo padrao do app deve ser preto por default, aplicado no container raiz.
+- Evitar logica de negocio dentro de `View`.
+
+## Qualidade e manutencao
+- Priorizar codigo simples, legivel e com responsabilidade unica.
+- Nomes devem refletir intencao (tipos, metodos, propriedades e rotas).
+- Em mudancas relevantes, manter cobertura de testes para `ViewModel` e fluxos de coordenacao.
+
+## Evolucao das regras
+- Sempre respeitar primeiro estas diretrizes base.
+- Quando o usuario informar novas regras, incorporar como extensao deste padrao.
+- Em caso de conflito entre regras, pedir confirmacao antes de implementar.
