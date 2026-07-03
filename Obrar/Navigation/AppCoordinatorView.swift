@@ -5,10 +5,16 @@ struct AppCoordinatorView: View {
 
     var body: some View {
         NavigationStack(path: $coordinator.path) {
-            coordinator.build(AppRoute.home)
+            coordinator.buildSelectedTab()
                 .navigationDestination(for: AppRoute.self) { route in
                     coordinator.build(route)
                 }
+        }
+        .safeAreaInset(edge: .bottom) {
+            AppBottomTabBarView(
+                selectedTab: coordinator.selectedTab,
+                onSelect: coordinator.selectTab
+            )
         }
     }
 }

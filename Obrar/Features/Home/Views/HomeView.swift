@@ -23,6 +23,6 @@ struct HomeView: View {
 }
 
 #Preview {
-    HomeView(viewModel: HomeViewModel())
+    AppCoordinatorView()
         .preferredColorScheme(.dark)
 }
