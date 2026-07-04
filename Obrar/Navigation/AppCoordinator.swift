@@ -14,7 +14,9 @@ final class AppCoordinator {
     func build(_ route: AppRoute) -> some View {
         switch route {
         case .home:
-            homeCoordinator.makeHomeView()
+            homeCoordinator.makeHomeView(onRequestOpenCadastro: { [weak self] in
+                self?.selectTab(.cadastro)
+            })
         case .obras:
             destinationScreen(
                 title: "Obras",
@@ -47,7 +49,9 @@ final class AppCoordinator {
     func buildSelectedTab() -> some View {
         switch selectedTab {
         case .home:
-            homeCoordinator.makeHomeView()
+            homeCoordinator.makeHomeView(onRequestOpenCadastro: { [weak self] in
+                self?.selectTab(.cadastro)
+            })
         case .cadastro:
             cadastroCoordinator.makeCadastroView()
         case .opcoes:

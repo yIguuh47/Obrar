@@ -2,6 +2,14 @@ import Combine
 import Foundation
 
 final class HomeViewModel: ObservableObject {
+    struct WorkersDayGroup: Identifiable {
+        let date: Date
+        let label: String
+        let workers: [String]
+
+        var id: TimeInterval { date.timeIntervalSince1970 }
+    }
+
     enum Period: String, CaseIterable, Identifiable {
         case day = "Dia"
         case week = "Semana"
@@ -21,9 +29,12 @@ final class HomeViewModel: ObservableObject {
         }
     }
     @Published private(set) var assignedWorkers: [String] = []
+    @Published private(set) var groupedWorkersByDay: [WorkersDayGroup] = []
     @Published private(set) var availableWorkers: [Prestador] = []
     @Published var selectedWorkerIDs: Set<UUID> = []
     @Published var showWorkersSelectionSheet: Bool = false
+    @Published private(set) var workersSheetDate: Date = Date()
+    var onRequestOpenCadastro: (() -> Void)?
 
     private let calendar = Calendar.current
     private let prestadorStore: PrestadorStoreProtocol
@@ -44,6 +55,12 @@ final class HomeViewModel: ObservableObject {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "pt_BR")
         formatter.dateFormat = "MMMM yyyy"
+        return formatter
+    }()
+    private let dayGroupFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "pt_BR")
+        formatter.dateFormat = "EEE, d MMM"
         return formatter
     }()
 
@@ -70,7 +87,12 @@ final class HomeViewModel: ObservableObject {
     }
 
     var isWorkersListEmpty: Bool {
-        assignedWorkers.isEmpty
+        switch selectedPeriod {
+        case .day:
+            return assignedWorkers.isEmpty
+        case .week, .month:
+            return groupedWorkersByDay.isEmpty
+        }
     }
 
     var emptyStateTitle: String {
@@ -89,7 +111,7 @@ final class HomeViewModel: ObservableObject {
     }
 
     var workersSelectionTitle: String {
-        "Selecionar Prestadores - \(headerFormatter.string(from: referenceDate).capitalized)"
+        "Selecionar Prestadores - \(headerFormatter.string(from: workersSheetDate).capitalized)"
     }
 
     init(
@@ -114,9 +136,15 @@ final class HomeViewModel: ObservableObject {
     }
 
     func addRegisteredWorkers() {
+        openWorkersEditor(for: referenceDate)
+    }
+
+    func openWorkersEditor(for date: Date) {
+        workersSheetDate = calendar.startOfDay(for: date)
+
         do {
             availableWorkers = try prestadorStore.fetchAll().sorted { $0.nome < $1.nome }
-            let currentRegistro = try registroDiarioStore.fetch(for: referenceDate)
+            let currentRegistro = try registroDiarioStore.fetch(for: workersSheetDate)
             selectedWorkerIDs = Set(currentRegistro?.itens.map(\.prestadorId) ?? [])
             showWorkersSelectionSheet = true
         } catch {
@@ -149,12 +177,17 @@ final class HomeViewModel: ObservableObject {
         }
 
         do {
-            try registroDiarioStore.upsert(for: referenceDate, itens: items)
+            try registroDiarioStore.upsert(for: workersSheetDate, itens: items)
             showWorkersSelectionSheet = false
             syncWorkersForSelectedPeriod()
         } catch {
             showWorkersSelectionSheet = false
         }
+    }
+
+    func openCadastroFromWorkersSheet() {
+        showWorkersSelectionSheet = false
+        onRequestOpenCadastro?()
     }
 
     func workName(from localServico: Prestador.LocalServico) -> String {
@@ -198,13 +231,36 @@ final class HomeViewModel: ObservableObject {
         do {
             let registros = try registroDiarioStore.fetchAll()
             let intervalo = intervaloSelecionado()
-            assignedWorkers = registros
-                .filter { intervalo.contains($0.data) }
+            let intervaloVisivel = visibleInterval(from: intervalo)
+            let registrosNoIntervalo = registros
+                .filter { intervaloVisivel.contains($0.data) }
+                .sorted { $0.data > $1.data }
+
+            let registrosPorDia = Dictionary(
+                uniqueKeysWithValues: registrosNoIntervalo.map { registro in
+                    (calendar.startOfDay(for: registro.data), registro)
+                }
+            )
+
+            let diasDoPeriodo = daysIn(intervalo: intervaloVisivel).sorted(by: >)
+
+            groupedWorkersByDay = diasDoPeriodo.map { dia in
+                let registro = registrosPorDia[dia]
+                let workers = registro?.itens.map(\.prestadorNome).uniqued() ?? []
+                return WorkersDayGroup(
+                    date: dia,
+                    label: dayGroupFormatter.string(from: dia).capitalized,
+                    workers: workers
+                )
+            }
+
+            assignedWorkers = registrosNoIntervalo
                 .flatMap(\.itens)
                 .map(\.prestadorNome)
                 .uniqued()
         } catch {
             assignedWorkers = []
+            groupedWorkersByDay = []
         }
     }
 
@@ -217,6 +273,16 @@ final class HomeViewModel: ObservableObject {
         case .month:
             return monthInterval(containing: referenceDate)
         }
+    }
+
+    private func visibleInterval(from intervalo: DateInterval) -> DateInterval {
+        guard selectedPeriod != .day else {
+            return intervalo
+        }
+
+        let startOfTomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: Date())) ?? intervalo.end
+        let visibleEnd = min(intervalo.end, startOfTomorrow)
+        return DateInterval(start: intervalo.start, end: max(intervalo.start, visibleEnd))
     }
 
     private func dayInterval(containing date: Date) -> DateInterval {
@@ -248,6 +314,22 @@ final class HomeViewModel: ObservableObject {
         case .month:
             return calendar.date(byAdding: .month, value: step, to: referenceDate) ?? referenceDate
         }
+    }
+
+    private func daysIn(intervalo: DateInterval) -> [Date] {
+        var days: [Date] = []
+        var current = calendar.startOfDay(for: intervalo.start)
+        let end = intervalo.end
+
+        while current < end {
+            days.append(current)
+            guard let next = calendar.date(byAdding: .day, value: 1, to: current) else {
+                break
+            }
+            current = next
+        }
+
+        return days
     }
 }
 

@@ -1,8 +1,9 @@
 import SwiftUI
 
 struct HomeCoordinator {
-    func makeHomeView() -> some View {
+    func makeHomeView(onRequestOpenCadastro: (() -> Void)? = nil) -> some View {
         let viewModel = HomeViewModel()
+        viewModel.onRequestOpenCadastro = onRequestOpenCadastro
         return HomeView(viewModel: viewModel)
     }
 }

@@ -12,9 +12,12 @@ struct HomeView: View {
                 title: viewModel.workersSectionTitle,
                 emptyStateTitle: viewModel.emptyStateTitle,
                 emptyStateDescription: viewModel.emptyStateDescription,
+                selectedPeriod: viewModel.selectedPeriod,
+                groupedWorkersByDay: viewModel.groupedWorkersByDay,
                 workers: viewModel.assignedWorkers,
                 isEmpty: viewModel.isWorkersListEmpty,
-                onAddWorkersTap: viewModel.addRegisteredWorkers
+                onAddWorkersTap: viewModel.addRegisteredWorkers,
+                onOpenDayGroup: viewModel.openWorkersEditor
             )
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
@@ -35,7 +38,8 @@ struct HomeView: View {
                 subtitleForWorker: { worker in
                     viewModel.workName(from: worker.localServico)
                 },
-                onSave: viewModel.saveSelectedWorkersForReferenceDate
+                onSave: viewModel.saveSelectedWorkersForReferenceDate,
+                onGoToCadastro: viewModel.openCadastroFromWorkersSheet
             )
         }
     }

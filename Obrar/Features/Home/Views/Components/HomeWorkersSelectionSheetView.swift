@@ -7,18 +7,31 @@ struct HomeWorkersSelectionSheetView: View {
     let onToggle: (UUID) -> Void
     let subtitleForWorker: (Prestador) -> String
     let onSave: () -> Void
+    let onGoToCadastro: () -> Void
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 16) {
                 if workers.isEmpty {
-                    VStack(spacing: 8) {
-                        Text("Nenhum prestador cadastrado.")
-                            .foregroundStyle(AppColors.textPrimary)
-                        Text("Cadastre prestadores na aba Cadastro para poder alocar.")
-                            .font(.footnote)
-                            .foregroundStyle(AppColors.textSecondary)
-                            .multilineTextAlignment(.center)
+                    VStack(spacing: 16) {
+                        VStack(spacing: 8) {
+                            Text("Nenhum prestador cadastrado.")
+                                .foregroundStyle(AppColors.textPrimary)
+                            Text("Cadastre prestadores na aba Cadastro para poder alocar.")
+                                .font(.footnote)
+                                .foregroundStyle(AppColors.textSecondary)
+                                .multilineTextAlignment(.center)
+                        }
+
+                        Button(action: onGoToCadastro) {
+                            Text("Ir para Cadastro")
+                                .font(.headline.weight(.semibold))
+                                .foregroundStyle(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(AppColors.accentPrimary)
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        }
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 } else {
@@ -54,14 +67,16 @@ struct HomeWorkersSelectionSheetView: View {
                     }
                 }
 
-                Button(action: onSave) {
-                    Text("Salvar seleção")
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(AppColors.accentPrimary)
-                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                if !workers.isEmpty {
+                    Button(action: onSave) {
+                        Text("Salvar seleção")
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(AppColors.accentPrimary)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    }
                 }
             }
             .padding()
@@ -80,6 +95,7 @@ struct HomeWorkersSelectionSheetView: View {
         isSelected: { _ in false },
         onToggle: { _ in },
         subtitleForWorker: { _ in "Obra" },
-        onSave: {}
+        onSave: {},
+        onGoToCadastro: {}
     )
 }
