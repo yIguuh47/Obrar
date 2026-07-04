@@ -7,6 +7,7 @@ final class AppCoordinator {
     var selectedTab: AppTab = .home
 
     private let homeCoordinator = HomeCoordinator()
+    private let cadastroCoordinator = CadastroCoordinator()
 
     @ViewBuilder
     func build(_ route: AppRoute) -> some View {
@@ -22,10 +23,7 @@ final class AppCoordinator {
         case .home:
             homeCoordinator.makeHomeView()
         case .cadastro:
-            tabPlaceholder(
-                title: "Cadastro",
-                subtitle: "Área pronta para os fluxos de cadastro."
-            )
+            cadastroCoordinator.makeCadastroView()
         case .opcoes:
             tabPlaceholder(
                 title: "Opções",
