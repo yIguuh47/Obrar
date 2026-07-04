@@ -22,6 +22,11 @@ alwaysApply: true
 - Nomes devem refletir intencao (tipos, metodos, propriedades e rotas).
 - Em mudancas relevantes, manter cobertura de testes para `ViewModel` e fluxos de coordenacao.
 
+## Imports obrigatorios em Swift
+- Sempre que uma classe conformar com `ObservableObject`, incluir `import Combine` no arquivo.
+- Sempre que usar `@Observable`, incluir `import Observation` no arquivo.
+- Antes de finalizar uma alteracao em Swift, validar se todos os imports necessarios foram adicionados.
+
 ## Evolucao das regras
 - Sempre respeitar primeiro estas diretrizes base.
 - Quando o usuario informar novas regras, incorporar como extensao deste padrao.

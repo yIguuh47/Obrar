@@ -8,12 +8,38 @@ final class AppCoordinator {
 
     private let homeCoordinator = HomeCoordinator()
     private let cadastroCoordinator = CadastroCoordinator()
+    private let opcoesCoordinator = OpcoesCoordinator()
 
     @ViewBuilder
     func build(_ route: AppRoute) -> some View {
         switch route {
         case .home:
             homeCoordinator.makeHomeView()
+        case .obras:
+            destinationScreen(
+                title: "Obras",
+                subtitle: "Tela especifica de obras."
+            )
+        case .prestadores:
+            destinationScreen(
+                title: "Prestadores",
+                subtitle: "Tela especifica de prestadores."
+            )
+        case .historico:
+            destinationScreen(
+                title: "Historico",
+                subtitle: "Tela especifica de historico."
+            )
+        case .relatorios:
+            destinationScreen(
+                title: "Relatorios",
+                subtitle: "Tela especifica de relatorios."
+            )
+        case .orcamento:
+            destinationScreen(
+                title: "Orcamento",
+                subtitle: "Tela especifica de orcamento."
+            )
         }
     }
 
@@ -25,18 +51,16 @@ final class AppCoordinator {
         case .cadastro:
             cadastroCoordinator.makeCadastroView()
         case .opcoes:
-            tabPlaceholder(
-                title: "Opções",
-                subtitle: "Área pronta para configurações e preferências."
-            )
+            opcoesCoordinator.makeOpcoesView()
         }
     }
 
     func selectTab(_ tab: AppTab) {
         selectedTab = tab
+        path = NavigationPath()
     }
 
-    private func tabPlaceholder(title: String, subtitle: String) -> some View {
+    private func destinationScreen(title: String, subtitle: String) -> some View {
         VStack(spacing: 8) {
             Text(title)
                 .font(.title2.weight(.bold))
