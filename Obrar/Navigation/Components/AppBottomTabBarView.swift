@@ -20,9 +20,9 @@ struct AppBottomTabBarView: View {
                 label: "OPÇÕES"
             )
         }
-        .padding(.horizontal, 22)
+        .padding(.horizontal, 24)
         .padding(.top, 8)
-        .padding(.bottom, 10)
+        .padding(.bottom, 8)
         .background(AppColors.backgroundSecondary)
         .overlay(alignment: .top) {
             AppColors.borderSubtle
@@ -34,7 +34,7 @@ struct AppBottomTabBarView: View {
         Button {
             onSelect(.cadastro)
         } label: {
-            VStack(spacing: 4) {
+            VStack(spacing: 8) {
                 ZStack {
                     Circle()
                         .fill(AppColors.accentPrimary)
@@ -44,7 +44,7 @@ struct AppBottomTabBarView: View {
                         .font(.headline.weight(.bold))
                         .foregroundStyle(.black)
                 }
-                .offset(y: -6)
+                .offset(y: -8)
 
                 Text("CADASTRO")
                     .font(.caption2.weight(.semibold))
@@ -59,7 +59,7 @@ struct AppBottomTabBarView: View {
         Button {
             onSelect(tab)
         } label: {
-            VStack(spacing: 4) {
+            VStack(spacing: 8) {
                 Image(appIcon: icon)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(color(for: tab))

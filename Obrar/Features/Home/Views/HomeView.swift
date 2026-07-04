@@ -4,7 +4,7 @@ struct HomeView: View {
     @ObservedObject var viewModel: HomeViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
+        VStack(alignment: .leading, spacing: 16) {
 
             HomeDateTabbarView(viewModel: viewModel)
 
@@ -13,10 +13,11 @@ struct HomeView: View {
                 isEmpty: viewModel.isWorkersListEmpty,
                 onAddWorkersTap: viewModel.addRegisteredWorkers
             )
-
-            Spacer()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .padding()
+        .safeAreaPadding(.top, 8)
+        .safeAreaPadding(.bottom, 8)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(AppColors.backgroundPrimary)
     }

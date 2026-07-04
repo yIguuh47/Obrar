@@ -5,7 +5,7 @@ struct OpcoesView: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 16) {
                 Text("Opções")
                     .font(.title2.weight(.bold))
                     .foregroundStyle(AppColors.textPrimary)
@@ -20,8 +20,8 @@ struct OpcoesView: View {
                         .autocorrectionDisabled(true)
                         .foregroundStyle(AppColors.textPrimary)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 10)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
                 .background(AppColors.backgroundSecondary)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
@@ -39,8 +39,8 @@ struct OpcoesView: View {
                                     .font(.footnote.weight(.semibold))
                                     .foregroundStyle(AppColors.textTertiary)
                             }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 14)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 16)
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
@@ -60,11 +60,13 @@ struct OpcoesView: View {
                         .font(.footnote)
                         .foregroundStyle(AppColors.textTertiary)
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, 4)
+                        .padding(.top, 8)
                 }
             }
             .padding()
         }
+        .safeAreaPadding(.top, 8)
+        .safeAreaPadding(.bottom, 24)
         .background(AppColors.backgroundPrimary)
     }
 }

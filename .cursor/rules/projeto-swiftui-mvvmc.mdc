@@ -16,6 +16,8 @@ alwaysApply: true
 - Evitar hardcode de estilos repetidos; preferir Design System (`AppColors`, `Spacing`, `Typography`).
 - Fundo padrao do app deve ser preto por default, aplicado no container raiz.
 - Evitar logica de negocio dentro de `View`.
+- Usar grid de 8 pontos para layout: paddings, margins, gaps e offsets devem seguir multiplos de 8 (`0, 8, 16, 24, 32...`).
+- Evitar valores quebrados de espacamento (ex.: `10`, `12`, `14`, `18`, `22`) sem justificativa funcional explicita.
 
 ## Qualidade e manutencao
 - Priorizar codigo simples, legivel e com responsabilidade unica.

@@ -11,7 +11,7 @@ struct HomeDateTabbarView: View {
     @ObservedObject var viewModel: HomeViewModel
 
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
             HStack {
                 Button(action: viewModel.goToPrevious) {
                     Image(appIcon: .chevronLeft)
@@ -43,8 +43,8 @@ struct HomeDateTabbarView: View {
             }
             .pickerStyle(.segmented)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
         .background(AppColors.backgroundSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }

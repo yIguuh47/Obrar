@@ -28,7 +28,7 @@ struct CadastroView: View {
                     divider
 
                     if viewModel.isUsingRegisteredWork {
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: 8) {
                             Text("Obra cadastrada")
                                 .font(.subheadline.weight(.medium))
                                 .foregroundStyle(AppColors.textSecondary)
@@ -59,7 +59,7 @@ struct CadastroView: View {
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(.black)
                                 .frame(maxWidth: .infinity)
-                                .padding(.vertical, 10)
+                                .padding(.vertical, 8)
                                 .background(AppColors.accentPrimary)
                                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                         }
@@ -95,7 +95,7 @@ struct CadastroView: View {
 
                         divider
 
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: 8) {
                             Text("Data para finalizar o serviço")
                                 .font(.subheadline.weight(.medium))
                                 .foregroundStyle(AppColors.textSecondary)
@@ -124,7 +124,7 @@ struct CadastroView: View {
                         .font(.headline.weight(.semibold))
                         .foregroundStyle(.black)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 13)
+                        .padding(.vertical, 16)
                         .background(viewModel.isSaveEnabled ? AppColors.accentPrimary : AppColors.surfaceDisabled)
                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 }
@@ -133,6 +133,8 @@ struct CadastroView: View {
             }
             .padding()
         }
+        .safeAreaPadding(.top, 8)
+        .safeAreaPadding(.bottom, 24)
         .background(AppColors.backgroundPrimary)
         .alert("Cadastro de Prestador", isPresented: $viewModel.showSaveAlert) {
             Button("OK", role: .cancel) {}
@@ -151,13 +153,13 @@ struct CadastroView: View {
         title: String,
         @ViewBuilder content: () -> Content
     ) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 16) {
             Text(title)
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(AppColors.textPrimary)
             content()
         }
-        .padding(14)
+        .padding(16)
         .background(AppColors.backgroundSecondary)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
@@ -168,7 +170,7 @@ struct CadastroView: View {
         placeholder: String,
         keyboardType: UIKeyboardType = .default
     ) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.subheadline.weight(.medium))
                 .foregroundStyle(AppColors.textSecondary)
