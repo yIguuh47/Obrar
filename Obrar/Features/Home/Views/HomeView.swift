@@ -10,6 +10,7 @@ struct HomeView: View {
 
             HomeWorkersListView(
                 title: viewModel.workersSectionTitle,
+                workers: viewModel.assignedWorkers,
                 isEmpty: viewModel.isWorkersListEmpty,
                 onAddWorkersTap: viewModel.addRegisteredWorkers
             )
@@ -20,6 +21,9 @@ struct HomeView: View {
         .safeAreaPadding(.bottom, 8)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(AppColors.backgroundPrimary)
+        .onAppear {
+            viewModel.refreshWorkers()
+        }
     }
 }
 

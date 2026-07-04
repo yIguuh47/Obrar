@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HomeWorkersListView: View {
     let title: String
+    let workers: [String]
     let isEmpty: Bool
     let onAddWorkersTap: () -> Void
 
@@ -14,9 +15,29 @@ struct HomeWorkersListView: View {
             if isEmpty {
                 emptyStateCard
                     .frame(maxHeight: .infinity)
+            } else {
+                workersList
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private var workersList: some View {
+        VStack(spacing: 8) {
+            ForEach(workers, id: \.self) { worker in
+                HStack {
+                    Image(systemName: "person.fill")
+                        .foregroundStyle(AppColors.textTertiary)
+                    Text(worker)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(AppColors.textPrimary)
+                    Spacer()
+                }
+                .padding(16)
+                .background(AppColors.backgroundSecondary)
+                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+            }
+        }
     }
 
     private var emptyStateCard: some View {
@@ -75,6 +96,7 @@ struct HomeWorkersListView: View {
 #Preview {
     HomeWorkersListView(
         title: "Prestadores de Hoje",
+        workers: [],
         isEmpty: true,
         onAddWorkersTap: {}
     )
