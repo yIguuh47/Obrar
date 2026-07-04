@@ -143,9 +143,11 @@ final class HomeViewModel: ObservableObject {
         workersSheetDate = calendar.startOfDay(for: date)
 
         do {
-            availableWorkers = try prestadorStore.fetchAll().sorted { $0.nome < $1.nome }
+            availableWorkers = try prestadorStore.fetchAll()
+                .sorted { $0.nome < $1.nome }
+                .uniqued(by: { $0.nome.lowercased() })
             let currentRegistro = try registroDiarioStore.fetch(for: workersSheetDate)
-            selectedWorkerIDs = Set(currentRegistro?.itens.map(\.prestadorId) ?? [])
+            selectedWorkerIDs = resolveSelectedWorkerIDs(from: currentRegistro)
             showWorkersSelectionSheet = true
         } catch {
             availableWorkers = []
@@ -331,11 +333,51 @@ final class HomeViewModel: ObservableObject {
 
         return days
     }
+
+    private func resolveSelectedWorkerIDs(from registro: RegistroDiario?) -> Set<UUID> {
+        guard let registro else {
+            return []
+        }
+
+        let availableIDs = Set(availableWorkers.map(\.id))
+        var selected: Set<UUID> = []
+        var unresolvedNames: [String] = []
+
+        for item in registro.itens {
+            if availableIDs.contains(item.prestadorId) {
+                selected.insert(item.prestadorId)
+            } else {
+                unresolvedNames.append(item.prestadorNome)
+            }
+        }
+
+        if !unresolvedNames.isEmpty {
+            let idsByName = Dictionary(
+                availableWorkers.map { ($0.nome.lowercased(), $0.id) },
+                uniquingKeysWith: { first, _ in first }
+            )
+
+            for name in unresolvedNames {
+                if let id = idsByName[name.lowercased()] {
+                    selected.insert(id)
+                }
+            }
+        }
+
+        return selected
+    }
 }
 
 private extension Array where Element: Hashable {
     func uniqued() -> [Element] {
         var seen = Set<Element>()
         return filter { seen.insert($0).inserted }
+    }
+}
+
+private extension Array {
+    func uniqued<Key: Hashable>(by keySelector: (Element) -> Key) -> [Element] {
+        var seen = Set<Key>()
+        return filter { seen.insert(keySelector($0)).inserted }
     }
 }
