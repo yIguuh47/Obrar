@@ -10,6 +10,8 @@ struct HomeView: View {
 
             HomeWorkersListView(
                 title: viewModel.workersSectionTitle,
+                emptyStateTitle: viewModel.emptyStateTitle,
+                emptyStateDescription: viewModel.emptyStateDescription,
                 workers: viewModel.assignedWorkers,
                 isEmpty: viewModel.isWorkersListEmpty,
                 onAddWorkersTap: viewModel.addRegisteredWorkers
@@ -23,6 +25,18 @@ struct HomeView: View {
         .background(AppColors.backgroundPrimary)
         .onAppear {
             viewModel.refreshWorkers()
+        }
+        .sheet(isPresented: $viewModel.showWorkersSelectionSheet) {
+            HomeWorkersSelectionSheetView(
+                title: viewModel.workersSelectionTitle,
+                workers: viewModel.availableWorkers,
+                isSelected: viewModel.isWorkerSelected,
+                onToggle: viewModel.toggleWorkerSelection,
+                subtitleForWorker: { worker in
+                    viewModel.workName(from: worker.localServico)
+                },
+                onSave: viewModel.saveSelectedWorkersForReferenceDate
+            )
         }
     }
 }

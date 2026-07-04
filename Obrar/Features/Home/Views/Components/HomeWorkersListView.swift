@@ -2,6 +2,8 @@ import SwiftUI
 
 struct HomeWorkersListView: View {
     let title: String
+    let emptyStateTitle: String
+    let emptyStateDescription: String
     let workers: [String]
     let isEmpty: Bool
     let onAddWorkersTap: () -> Void
@@ -62,12 +64,12 @@ struct HomeWorkersListView: View {
                 }
                 .padding(.top, 16)
 
-                Text("Nenhum prestador alocado para hoje.")
+                Text(emptyStateTitle)
                     .font(.title3.weight(.semibold))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppColors.textPrimary)
 
-                Text("Toque no botão abaixo para selecionar os prestadores cadastrados que trabalharam.")
+                Text(emptyStateDescription)
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(AppColors.textSecondary)
@@ -96,6 +98,8 @@ struct HomeWorkersListView: View {
 #Preview {
     HomeWorkersListView(
         title: "Prestadores de Hoje",
+        emptyStateTitle: "Nenhum prestador alocado para hoje.",
+        emptyStateDescription: "Toque no botão abaixo para selecionar os prestadores cadastrados que trabalharam.",
         workers: [],
         isEmpty: true,
         onAddWorkersTap: {}

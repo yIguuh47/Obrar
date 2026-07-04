@@ -2,18 +2,6 @@ import Combine
 import Foundation
 
 final class CadastroViewModel: ObservableObject {
-    struct ObraCadastrada: Identifiable, Equatable {
-        let id: String
-        let nome: String
-        let endereco: String
-
-        init(id: String = UUID().uuidString, nome: String, endereco: String = "") {
-            self.id = id
-            self.nome = nome
-            self.endereco = endereco
-        }
-    }
-
     enum TipoRemuneracao: String, CaseIterable, Identifiable {
         case diaria = "Diária"
         case empreita = "Empreita"
@@ -43,16 +31,18 @@ final class CadastroViewModel: ObservableObject {
     @Published var showSaveAlert: Bool = false
     @Published private(set) var saveAlertMessage: String = ""
 
-    @Published var obrasCadastradas: [ObraCadastrada] = [
-        ObraCadastrada(nome: "Residencial Primavera"),
-        ObraCadastrada(nome: "Reforma Apartamento Centro"),
-        ObraCadastrada(nome: "Obra Comercial - Loja 12")
-    ]
+    @Published var obrasCadastradas: [Obra] = []
 
     private let prestadorStore: PrestadorStoreProtocol
+    private let obraStore: ObraStoreProtocol
 
-    init(prestadorStore: PrestadorStoreProtocol = UserDefaultsPrestadorStore()) {
+    init(
+        prestadorStore: PrestadorStoreProtocol = UserDefaultsPrestadorStore(),
+        obraStore: ObraStoreProtocol = UserDefaultsObraStore()
+    ) {
         self.prestadorStore = prestadorStore
+        self.obraStore = obraStore
+        loadObras()
         self.obraSelecionadaId = obrasCadastradas.first?.id ?? ""
     }
 
@@ -64,7 +54,7 @@ final class CadastroViewModel: ObservableObject {
         origemLocalServico == .obraCadastrada
     }
 
-    var obraSelecionadaAtual: ObraCadastrada? {
+    var obraSelecionadaAtual: Obra? {
         obrasCadastradas.first { $0.id == obraSelecionadaId }
     }
 
@@ -162,7 +152,18 @@ final class CadastroViewModel: ObservableObject {
             return false
         }
 
-        let novaObra = ObraCadastrada(nome: nomeTratado, endereco: enderecoTratado)
+        let novaObra = Obra(nome: nomeTratado, endereco: enderecoTratado)
+
+        do {
+            try obraStore.save(novaObra)
+        } catch {
+            if showAlertOnFailure {
+                saveAlertMessage = "Não foi possível cadastrar a obra agora."
+                showSaveAlert = true
+            }
+            return false
+        }
+
         obrasCadastradas.append(novaObra)
         obraSelecionadaId = novaObra.id
         origemLocalServico = .obraCadastrada
@@ -192,6 +193,14 @@ final class CadastroViewModel: ObservableObject {
             .trimmingCharacters(in: .whitespacesAndNewlines)
 
         return Decimal(string: cleanValue)
+    }
+
+    private func loadObras() {
+        do {
+            obrasCadastradas = try obraStore.fetchAll()
+        } catch {
+            obrasCadastradas = []
+        }
     }
 
     private func resetForm(keepingSelectedWorkId selectedWorkId: String? = nil) {

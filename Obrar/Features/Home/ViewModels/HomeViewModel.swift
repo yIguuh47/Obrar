@@ -21,9 +21,13 @@ final class HomeViewModel: ObservableObject {
         }
     }
     @Published private(set) var assignedWorkers: [String] = []
+    @Published private(set) var availableWorkers: [Prestador] = []
+    @Published var selectedWorkerIDs: Set<UUID> = []
+    @Published var showWorkersSelectionSheet: Bool = false
 
     private let calendar = Calendar.current
     private let prestadorStore: PrestadorStoreProtocol
+    private let registroDiarioStore: RegistroDiarioStoreProtocol
     private let headerFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "pt_BR")
@@ -69,8 +73,31 @@ final class HomeViewModel: ObservableObject {
         assignedWorkers.isEmpty
     }
 
-    init(prestadorStore: PrestadorStoreProtocol = UserDefaultsPrestadorStore()) {
+    var emptyStateTitle: String {
+        switch selectedPeriod {
+        case .day:
+            return "Nenhum prestador alocado para hoje."
+        case .week:
+            return "Nenhum prestador alocado nesta semana."
+        case .month:
+            return "Nenhum prestador alocado neste mês."
+        }
+    }
+
+    var emptyStateDescription: String {
+        "Toque no botão abaixo para selecionar os prestadores cadastrados que trabalharam."
+    }
+
+    var workersSelectionTitle: String {
+        "Selecionar Prestadores - \(headerFormatter.string(from: referenceDate).capitalized)"
+    }
+
+    init(
+        prestadorStore: PrestadorStoreProtocol = UserDefaultsPrestadorStore(),
+        registroDiarioStore: RegistroDiarioStoreProtocol = UserDefaultsRegistroDiarioStore()
+    ) {
         self.prestadorStore = prestadorStore
+        self.registroDiarioStore = registroDiarioStore
         syncWorkersForSelectedPeriod()
     }
 
@@ -87,7 +114,56 @@ final class HomeViewModel: ObservableObject {
     }
 
     func addRegisteredWorkers() {
-        // Placeholder for future flow with coordinator/navigation.
+        do {
+            availableWorkers = try prestadorStore.fetchAll().sorted { $0.nome < $1.nome }
+            let currentRegistro = try registroDiarioStore.fetch(for: referenceDate)
+            selectedWorkerIDs = Set(currentRegistro?.itens.map(\.prestadorId) ?? [])
+            showWorkersSelectionSheet = true
+        } catch {
+            availableWorkers = []
+            selectedWorkerIDs = []
+            showWorkersSelectionSheet = true
+        }
+    }
+
+    func toggleWorkerSelection(_ workerId: UUID) {
+        if selectedWorkerIDs.contains(workerId) {
+            selectedWorkerIDs.remove(workerId)
+        } else {
+            selectedWorkerIDs.insert(workerId)
+        }
+    }
+
+    func isWorkerSelected(_ workerId: UUID) -> Bool {
+        selectedWorkerIDs.contains(workerId)
+    }
+
+    func saveSelectedWorkersForReferenceDate() {
+        let selectedWorkers = availableWorkers.filter { selectedWorkerIDs.contains($0.id) }
+        let items = selectedWorkers.map { worker in
+            RegistroDiario.Item(
+                prestadorId: worker.id,
+                prestadorNome: worker.nome,
+                obraNome: workName(from: worker.localServico)
+            )
+        }
+
+        do {
+            try registroDiarioStore.upsert(for: referenceDate, itens: items)
+            showWorkersSelectionSheet = false
+            syncWorkersForSelectedPeriod()
+        } catch {
+            showWorkersSelectionSheet = false
+        }
+    }
+
+    func workName(from localServico: Prestador.LocalServico) -> String {
+        switch localServico {
+        case .obra(let obra):
+            return obra
+        case .localizacao(let local):
+            return local
+        }
     }
 
     private var formattedReferenceDate: String {
@@ -120,11 +196,12 @@ final class HomeViewModel: ObservableObject {
 
     private func syncWorkersForSelectedPeriod() {
         do {
-            let prestadores = try prestadorStore.fetchAll()
+            let registros = try registroDiarioStore.fetchAll()
             let intervalo = intervaloSelecionado()
-            assignedWorkers = prestadores
-                .filter { intervalo.contains($0.criadoEm) }
-                .map(\.nome)
+            assignedWorkers = registros
+                .filter { intervalo.contains($0.data) }
+                .flatMap(\.itens)
+                .map(\.prestadorNome)
                 .uniqued()
         } catch {
             assignedWorkers = []
