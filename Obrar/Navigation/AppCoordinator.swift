@@ -18,20 +18,11 @@ final class AppCoordinator {
                 self?.selectTab(.cadastro)
             })
         case .obras:
-            destinationScreen(
-                title: "Obras",
-                subtitle: "Tela especifica de obras."
-            )
+            ObrasListView(viewModel: ObrasListViewModel())
         case .prestadores:
-            destinationScreen(
-                title: "Prestadores",
-                subtitle: "Tela especifica de prestadores."
-            )
+            PrestadoresListView(viewModel: PrestadoresListViewModel())
         case .historico:
-            destinationScreen(
-                title: "Historico",
-                subtitle: "Tela especifica de historico."
-            )
+            HistoricoDetalhadoView(viewModel: HistoricoDetalhadoViewModel())
         case .relatorios:
             destinationScreen(
                 title: "Relatorios",
